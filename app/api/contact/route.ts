@@ -23,14 +23,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Send email using Resend
-    const resendApiKey = process.env.RESEND_API_KEY
+    const resendApiKey = process.env.RESEND_API_KEY || process.env.NEXT_PUBLIC_RESEND_API_KEY
 
     console.log("[v0] RESEND_API_KEY exists:", !!resendApiKey)
     console.log("[v0] RESEND_API_KEY length:", resendApiKey?.length)
-    console.log("[v0] RESEND_API_KEY starts with:", resendApiKey?.substring(0, 5))
 
     if (!resendApiKey) {
       console.error("[v0] RESEND_API_KEY is not set in environment variables")
+      console.error("[v0] Available env keys:", Object.keys(process.env).filter(k => k.includes("RESEND") || k.includes("resend")))
       return NextResponse.json(
         { error: "Error de configuracion del servidor. Contacte por telefono." },
         { status: 500 }
