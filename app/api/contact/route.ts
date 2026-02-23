@@ -25,8 +25,12 @@ export async function POST(request: NextRequest) {
     // Send email using Resend
     const resendApiKey = process.env.RESEND_API_KEY
 
+    console.log("[v0] RESEND_API_KEY exists:", !!resendApiKey)
+    console.log("[v0] RESEND_API_KEY length:", resendApiKey?.length)
+    console.log("[v0] RESEND_API_KEY starts with:", resendApiKey?.substring(0, 5))
+
     if (!resendApiKey) {
-      console.error("RESEND_API_KEY is not set")
+      console.error("[v0] RESEND_API_KEY is not set in environment variables")
       return NextResponse.json(
         { error: "Error de configuracion del servidor. Contacte por telefono." },
         { status: 500 }
@@ -91,14 +95,19 @@ export async function POST(request: NextRequest) {
       }),
     })
 
+    console.log("[v0] Resend response status:", resendResponse.status)
+
     if (!resendResponse.ok) {
       const errorData = await resendResponse.json()
-      console.error("Resend API error:", errorData)
+      console.error("[v0] Resend API error:", JSON.stringify(errorData))
       return NextResponse.json(
-        { error: "Error al enviar el correo. Intentelo de nuevo." },
+        { error: `Error al enviar el correo: ${errorData?.message || errorData?.name || "Error desconocido"}` },
         { status: 500 }
       )
     }
+
+    const successData = await resendResponse.json()
+    console.log("[v0] Email sent successfully:", JSON.stringify(successData))
 
     return NextResponse.json({ success: true, message: "Mensaje enviado correctamente." })
   } catch (error) {
